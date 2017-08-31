@@ -1,0 +1,14 @@
+{
+  "name": "nasdaq",
+  "version": "1.0.0",
+  "description": "sample websocket server that streams csv",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Zeeshan Hyder",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^3.1.0"
+  }
+}

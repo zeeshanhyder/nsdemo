@@ -1,0 +1,81 @@
+<DOCTYPE html>
+<html>
+<head>
+  <title>WS Sample Client</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.17/c3.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.17/c3.min.css" media="screen">
+</head>
+
+<body>
+
+  <div id="wrapper">
+    <div id="chart"></div>
+  </div>
+
+  <script>
+
+    var csvData;
+
+    var ws = new WebSocket('ws://localhost:9001');
+
+    ws.onmessage = function(payload){
+
+      var csvFile = new Blob([payload.data],{type:'text/csv'});
+      var url = URL.createObjectURL(csvFile);
+
+      d3.csv(url, function(data){
+
+        csvData = data;
+
+        var dateArray = csvData.map(function(data){
+          return data.date;
+        });
+
+        var salaryArray = csvData.map(function(data){
+          return data.salary;
+        });
+
+        dateArray.unshift('x');
+        salaryArray.unshift('data1');
+
+        var chart = c3.generate({
+            bindto: '#chart',
+            // data: {
+            //   columns: [
+            //     ['data1', 30, 200, 100, 400, 150, 250],
+            //     ['data2', 50, 20, 10, 40, 15, 25]
+            //   ]
+            // }
+
+
+            data: {
+               x: 'x',
+        //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+               columns: [
+                 dateArray,
+        //            ['x', '20130101', '20130102', '20130103', '20130104', '20130105', '20130106'],
+                salaryArray
+               ]
+           },
+           axis: {
+               x: {
+                   type: 'timeseries',
+                   tick: {
+                       format: '%Y-%m-%d'
+                   }
+               }
+           }
+
+
+        });
+
+
+
+      });
+    //  window.open(url);
+    }
+
+  </script>
+</body>
+</html>
