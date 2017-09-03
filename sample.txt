@@ -1,4 +1,3 @@
-id,date,time,bidPrice,bidType,bidRange,askPrice,askType,askRange
 ITUB,03/03/2014,09:30:00.006,13.07,P,3,13.16,P,11
 ITUB,03/03/2014,09:30:00.026,13.07,P,4,13.16,P,12
 ITUB,03/03/2014,09:30:00.135,13.09,P,6,13.16,P,12

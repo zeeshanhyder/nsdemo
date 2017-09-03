@@ -31,14 +31,22 @@ function sendWelcomeCSV(){
 }
 
 function sendCSVFile(connection){
-  fs.readFile('MOCK.csv', 'utf8', function(err, data){
-      if(err){
-        console.log('FILE_READ_ERROR');
-        return;
-      }
+  // fs.readFile('MOCK.csv', 'utf8', function(err, data){
+  //     if(err){
+  //       console.log('FILE_READ_ERROR');
+  //       return;
+  //     }
+  //
+  //     connection.send(data,{binary:true});
+  //     console.log('CSV_TRANSFER_COMPLETE');
+  // });
 
-      connection.send(data,{binary:true});
-      console.log('CSV_TRANSFER_COMPLETE');
+  var stream = fs.createReadStream('MOCK.csv');
+  stream.on('data', (chunk)=>{
+    connection.send(chunk, {binary: true});
+  });
+  stream.on('end',()=>{
+    console.log('TRANSFER_COMPLETE_OK');
   });
 }
 
