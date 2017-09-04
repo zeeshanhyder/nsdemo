@@ -1,12 +1,32 @@
 const WebSocket = require('ws');
 const fs = require('fs');
+var express = require('express');
+
+
+//create web server to serve our client websocket html file
+var http = express();
+
+// use static files
+http.use(express.static('public'))
+
+http.get('/', function(req,res){
+  res.send('<div><p>Client is available at: <b>/client</b><p>Server is available at: <b>ws://127.0.0.1:9001</b></p></div>');
+});
+
+
+//Fire up webserver
+http.listen(9000, function () {
+  console.log('INFO: Webserver fired up on port 9000');
+})
 
 // WebSocket Handler
 const ws = new WebSocket('ws://localhost:9001',{
   perMessageDeflate: false
+}, function(){
+  console.log('INFO: WebSocket Server fired up on port 9001')
 });
 
-// WebSocket Server
+// Fire up WebSocket server
 const wsServer = new WebSocket.Server({
   port: 9001
 });
@@ -25,11 +45,6 @@ function incomingMessageHandler(payload){
 }
 
 
-function sendWelcomeCSV(){
-  //read or generate a csv file and pass that on
-  return 'Hello!';
-}
-
 function sendCSVFile(connection){
   // fs.readFile('MOCK.csv', 'utf8', function(err, data){
   //     if(err){
@@ -46,13 +61,13 @@ function sendCSVFile(connection){
     connection.send(chunk, {binary: true});
   });
   stream.on('end',()=>{
-    console.log('TRANSFER_COMPLETE_OK');
+    console.log('INFO: CSV_TRANSFER_COMPLETE_OK');
   });
 }
 
 function newConnection(connection){
   //handle connection
-  console.log('WS_CONNECTION_OK');
+  console.log('INFO: WS_CONNECTION_OK');
   connection.on('message', incomingMessageHandler);
   sendCSVFile(connection);
 }
@@ -64,7 +79,7 @@ function newConnection(connection){
 
 // on connection open
 ws.on('open', function(){
-  console.log('WS_INIT_OK');
+  console.log('INFO: WS_INIT_OK');
 });
 
 

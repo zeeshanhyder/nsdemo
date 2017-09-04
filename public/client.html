@@ -1,0 +1,97 @@
+<DOCTYPE html>
+<html>
+<head>
+  <title>WS Sample Client</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.17/c3.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.17/c3.min.css" media="screen">
+</head>
+
+<body>
+
+  <div id="wrapper">
+    <div id="chart"></div>
+  </div>
+
+  <script>
+
+    var csvData;
+
+    var ws = new WebSocket('ws://localhost:9001');
+
+    ws.onmessage = function(payload){
+
+      var csvFile = new Blob([payload.data],{type:'text/csv'});
+      var url = URL.createObjectURL(csvFile);
+
+      d3.csv(url, function(data){
+
+        var fileData  = data;
+        var bidPrice = [];
+        var askPrice = [];
+
+
+
+        bidPrice = bidPrice.concat(fileData.map(function(data){
+          return data.bidPrice;
+        }));
+
+        askPrice = askPrice.concat(fileData.map(function(data){
+          return data.askPrice;
+        }));
+
+        var _date = fileData.map(function(data){
+          var today = new Date();
+          var year = today.getFullYear();
+          var month = today.getMonth();
+          var day = today.getDate();
+        //  data.time = data.time.split(".")[0];
+          return year+'-'+month+'-'+day+' '+data.time;
+        });
+
+        _date.unshift('x');
+        bidPrice.unshift('Bid Price');
+        askPrice.unshift('Ask Price');
+
+        var chart = c3.generate({
+            bindto: '#chart',
+            // data: {
+            //   columns: [
+            //     ['data1', 30, 200, 100, 400, 150, 250],
+            //     ['data2', 50, 20, 10, 40, 15, 25]
+            //   ]
+            // }
+
+
+            data: {
+               x: 'x',
+               xFormat: '%Y-%m-%d %H:%M:%S.%L',
+        //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+               columns: [
+                 _date,
+                 bidPrice,
+                 askPrice
+               ]
+           },
+           axis: {
+               x: {
+                   type: 'timeseries',
+                   tick: {
+                      count: 200,
+                       format: '%H:%M:%S.%L'
+                   }
+               }
+           }
+
+
+        });
+
+
+
+      });
+    //  window.open(url);
+    }
+
+  </script>
+</body>
+</html>

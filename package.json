@@ -9,6 +9,7 @@
   "author": "Zeeshan Hyder",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.15.4",
     "ws": "^3.1.0"
   }
 }
