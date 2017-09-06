@@ -15,58 +15,70 @@
 
   <script>
 
+
+    Array.prototype.constrict = function(id){
+      this.splice(0,2);
+      this.unshift(id);
+      return this;
+    }
+
+    var chart;
     var csvData;
 
     var ws = new WebSocket('ws://localhost:9001');
 
+    var bidPrice = ['Bid Price'];
+    var askPrice = ['Ask Price'];
+    var _date = ['x'];
+
     ws.onmessage = function(payload){
 
-      var csvFile = new Blob([payload.data],{type:'text/csv'});
-      var url = URL.createObjectURL(csvFile);
+      var jsonFile = new Blob([payload.data],{type:'application/json'});
+      var url = URL.createObjectURL(jsonFile);
 
-      d3.csv(url, function(data){
+
+
+      d3.json(url, function(data){
+
+        if(chart != undefined){
+          chart.destroy();
+        }
 
         var fileData  = data;
-        var bidPrice = [];
-        var askPrice = [];
 
 
+        if(bidPrice.length > 20){
+          bidPrice.constrict("Bid Price");
+        }
+        bidPrice = bidPrice.concat(fileData.best_bid.toFixed(2));
 
-        bidPrice = bidPrice.concat(fileData.map(function(data){
-          return data.bidPrice;
-        }));
+        if(askPrice.length > 20){
+          askPrice.constrict("Ask Price");
+        }
+        askPrice = askPrice.concat(fileData.best_ask.toFixed(2));
 
-        askPrice = askPrice.concat(fileData.map(function(data){
-          return data.askPrice;
-        }));
+        var today = new Date();
+        var year = today.getFullYear();
+        var month = today.getMonth();
+        var day = today.getDate();
+        var pTime = year+'-'+month+'-'+day+' '+fileData.time;
 
-        var _date = fileData.map(function(data){
-          var today = new Date();
-          var year = today.getFullYear();
-          var month = today.getMonth();
-          var day = today.getDate();
-        //  data.time = data.time.split(".")[0];
-          return year+'-'+month+'-'+day+' '+data.time;
-        });
+        if(_date.length > 20){
+          _date.constrict("x");
+        }
+        _date = _date.concat(pTime);
 
-        _date.unshift('x');
-        bidPrice.unshift('Bid Price');
-        askPrice.unshift('Ask Price');
 
-        var chart = c3.generate({
+        chart = c3.generate({
             bindto: '#chart',
-            // data: {
-            //   columns: [
-            //     ['data1', 30, 200, 100, 400, 150, 250],
-            //     ['data2', 50, 20, 10, 40, 15, 25]
-            //   ]
-            // }
 
+            transition: {
+              duration: 100
+            },
 
             data: {
                x: 'x',
-               xFormat: '%Y-%m-%d %H:%M:%S.%L',
-        //        xFormat: '%Y%m%d', // 'xFormat' can be used as custom format of 'x'
+               xFormat: '%Y-%m-%d %H:%M:%S.%L%L%L',
                columns: [
                  _date,
                  bidPrice,
@@ -77,8 +89,8 @@
                x: {
                    type: 'timeseries',
                    tick: {
-                      count: 200,
-                       format: '%H:%M:%S.%L'
+                       format: '%H:%M:%S.%L',
+                       count: 20
                    }
                }
            }
@@ -89,7 +101,6 @@
 
 
       });
-    //  window.open(url);
     }
 
   </script>
